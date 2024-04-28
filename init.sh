@@ -2,7 +2,7 @@ echo "Welcome to sgx's homework"
 echo "开始安装摄像头环境"
 sudo apt install libcamera-tools libcamera-v4l2 motion -y 
 sudo rm /etc/motion/motion.conf
-sudo mv motion.conf /etc/motion/motion.conf
+sudo cp motion.conf /etc/motion/motion.conf
 sudo libcamerify motion 
 echo "之后可通过指令 sudo libcamerify motion 启动"
 echo "可在 <本地IP地址>:8080 中查看"
