@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "sgx.h"
+#include"move.h"
 int fd;
 void init(){
     wiringPiSetup();
@@ -13,33 +14,13 @@ void init(){
     pinMode (Echo_pin, INPUT);
     pinMode(EN0,OUTPUT);
     digitalWrite(EN0,HIGH);
+    softPwmCreate(GPIO22, 100, 100);
+    softPwmCreate(GPIO23, 100, 100);
+    softPwmCreate(GPIO24, 100, 100);
+    softPwmCreate(GPIO25, 100, 100);
     softPwmCreate(EN0, 100, 100);
     pinMode(EN1,OUTPUT);
     softPwmCreate(EN1, 100, 100);
-}
-void direct(){
-    digitalWrite(GPIO22,LOW );
-    digitalWrite(GPIO23,HIGH);
-    digitalWrite(GPIO24, HIGH);
-    digitalWrite(GPIO25,LOW);
-}
-void stop(){
-    digitalWrite(GPIO22, LOW);
-    digitalWrite(GPIO23,LOW);
-    digitalWrite(GPIO24, LOW);
-    digitalWrite(GPIO25,LOW);
-}
-void left(){
-    digitalWrite(GPIO22,LOW );
-    digitalWrite(GPIO23,HIGH);
-    digitalWrite(GPIO24, LOW);
-    digitalWrite(GPIO25,HIGH);
-}
-void right(){
-    digitalWrite(GPIO22, HIGH);
-    digitalWrite(GPIO23,LOW);
-    digitalWrite(GPIO24, HIGH);//
-    digitalWrite(GPIO25,LOW);
 }
 void speed(int pos){
     softPwmWrite(EN0,pos);
@@ -68,43 +49,11 @@ double getDis(){
     // 这里测试的 距离 实际就是上面时序图的回响时间长度乘以声速的结果。
     return dis;
 }
-void trace(){
-    while(1){
-        int data=wiringPiI2CReadReg8(fd,1);
-        int s1=data&1,s2=(data>>1)&1,s3=(data>>2)&1,s4=(data>>3)&1;
-        // printf("%d %d %d %d\n",s1,s2,s3,s4);
-        if(getDis()<30){
-            left();
-            printf("%lf\n",getDis());
-            continue;
-        }
-        delay(10);
-        if(s2&&s3){
-            direct();
-        }
-        else if(s1&&!s4){
-            left();
-        }
-        else if(!s1&&s4){
-            right();
-        }
-        else if(!s1&&!s4&&s2&&!s3){
-            right();
-        }
-        else if(!s1&&!s4&&!s2&&s3){
-            left();
-        }
-        else {
-            continue;
-        }
-    }
-    
-}
 int main(){
     init();
-    speed(50);
-    trace();
-        
-    stop();
+    while(1){
+        delay(5);
+        trace();
+    }
     return 0;
 }
