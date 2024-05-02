@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "sgx.h"
 #include"move.h"
-int fd;
 void init(){
     wiringPiSetup();
     fd=wiringPiI2CSetup(TRACE);
@@ -9,8 +8,7 @@ void init(){
     pinMode(GPIO23, OUTPUT);
     pinMode(GPIO24, OUTPUT);
     pinMode(GPIO25, OUTPUT);
-     pinMode (Trig_pin, OUTPUT);
-    // 初始化接收引脚
+    pinMode (Trig_pin, OUTPUT);
     pinMode (Echo_pin, INPUT);
     pinMode(EN0,OUTPUT);
     digitalWrite(EN0,HIGH);
