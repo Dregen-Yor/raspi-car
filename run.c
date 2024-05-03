@@ -12,10 +12,10 @@ void init(){
     pinMode (Echo_pin, INPUT);
     pinMode(EN0,OUTPUT);
     digitalWrite(EN0,HIGH);
-    softPwmCreate(GPIO22, 100, 100);
-    softPwmCreate(GPIO23, 100, 100);
-    softPwmCreate(GPIO24, 100, 100);
-    softPwmCreate(GPIO25, 100, 100);
+    softPwmCreate(GPIO22, 150, 150);
+    softPwmCreate(GPIO23, 150, 150);
+    softPwmCreate(GPIO24, 150, 150);
+    softPwmCreate(GPIO25, 150, 150);
     softPwmCreate(EN0, 100, 100);
     pinMode(EN1,OUTPUT);
     softPwmCreate(EN1, 100, 100);
@@ -49,9 +49,14 @@ double getDis(){
 }
 int main(){
     init();
+
     while(1){
-        delay(5);
+        delay(20);
         trace();
+        if(getDis()<20){
+            stop();
+            break;
+        }
     }
     return 0;
 }
