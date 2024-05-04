@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <i2c/smbus.h>
 
 #ifndef __BME280_H
 #define __BME280_H
