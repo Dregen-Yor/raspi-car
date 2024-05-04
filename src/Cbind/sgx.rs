@@ -8618,3 +8618,84 @@ extern "C" {
 extern "C" {
     pub fn setCompensationParams(fd: ::std::os::raw::c_int);
 }
+extern "C" {
+    pub fn moto_run(x: ::std::os::raw::c_int, y: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn direct();
+}
+extern "C" {
+    pub fn stop();
+}
+extern "C" {
+    pub fn left();
+}
+extern "C" {
+    pub fn right();
+}
+extern "C" {
+    pub static mut err: f64;
+}
+extern "C" {
+    pub static mut last_err: f64;
+}
+extern "C" {
+    pub static mut err_diff: f64;
+}
+extern "C" {
+    pub static mut err_sum: f64;
+}
+pub const base: ::std::os::raw::c_int = 100;
+extern "C" {
+    pub static mut fd: ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn flash();
+}
+extern "C" {
+    pub fn cacu_pwm() -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn trace();
+}
+extern "C" {
+    pub fn init();
+}
+extern "C" {
+    pub fn getDis() -> f64;
+}
+pub const t_fine: i32 = 0;
+pub const dig_T1: u16 = 0;
+pub const dig_T2: i16 = 0;
+pub const dig_T3: i16 = 0;
+pub const dig_P1: u16 = 0;
+pub const dig_P2: i16 = 0;
+pub const dig_P3: i16 = 0;
+pub const dig_P4: i16 = 0;
+pub const dig_P5: i16 = 0;
+pub const dig_P6: i16 = 0;
+pub const dig_P7: i16 = 0;
+pub const dig_P8: i16 = 0;
+pub const dig_P9: i16 = 0;
+pub const dig_H1: u8 = 0;
+pub const dig_H2: i16 = 0;
+pub const dig_H3: u8 = 0;
+pub const dig_H4: i16 = 0;
+pub const dig_H5: i16 = 0;
+pub const dig_H6: i8 = 0;
+extern "C" {
+    pub static mut dataBlock: [u8; 8usize];
+}
+pub const temp_int: i32 = 0;
+pub const press_int: i32 = 0;
+pub const hum_int: i32 = 0;
+pub const station_press: f64 = 0.0;
+extern "C" {
+    pub fn getT() -> f64;
+}
+extern "C" {
+    pub fn getP() -> f64;
+}
+extern "C" {
+    pub fn getH() -> f64;
+}
