@@ -37,30 +37,19 @@ public:
   std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) override {
     double Temp[3];
     getT(Temp);
-    printf("%lf 度 %lf pa %lf h",Temp[0],Temp[1],Temp[2]);
+    printf("%lf 度 %lf pa %lf h\n",Temp[0],Temp[1],Temp[2]);
     auto message = MessageDto::createShared();
     message->Temp = Temp[0];
     message->Pres = Temp[1];
     message->Hum = Temp[2];
     auto jsonObjectMapper = oatpp::json::ObjectMapper::createShared();
     oatpp::String json = jsonObjectMapper->writeToString(message); 
-    return ResponseFactory::createResponse(Status::CODE_200, json->c_str());
+    auto res=ResponseFactory::createResponse(Status::CODE_200, json->c_str());
+    res->putHeader("Access-Control-Allow-Origin","*");
+    return res;
   }
 
 };
-// class Handler : public oatpp::web::server::HttpRequestHandler {
-// private:
-//   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_objectMapper;
-// public:
-//   Handler(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper)
-//     : m_objectMapper(objectMapper)
-//   {}
-//   std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) override {
-    
-//     // return ResponseFactory::createResponse(Status::CODE_200,std::to_string(Temp[1]).c_str());
-//   }
-// };
-
 void run() {
 
   /* Create Router for HTTP requests routing */

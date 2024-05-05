@@ -17,3 +17,13 @@
 - KID算法四路寻迹
 - 超声波避障
 - 网页端遥控
+
+## 技术栈
+- [wiringPi](https://github.com/WiringPi/WiringPi)
+- [opencv](https://github.com/opencv/opencv)
+- [oat++](https://github.com/oatpp/oatpp)
+- [frp](https://github.com/fatedier/frp)
+- [Vue](https://github.com/vuejs/vue)
+
+## 参考代码
+- [BME280](https://github.com/davebm1/c-bme280-pi)
