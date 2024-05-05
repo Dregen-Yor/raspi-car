@@ -14,7 +14,10 @@
         <p>距离：{{ D }}</p>
       </div>
       <div class="flex">
-        <el-text class=" w-14">速度: </el-text><el-input  v-model="speed" placeholder="速度范围为 0-100" maxlength="2"></el-input>
+        <el-text class=" w-14" >速度: {{ speed }}</el-text>
+      </div>
+      <div>
+        <el-button @click="move('trace')">自动寻迹</el-button>
       </div>
     </div>
   </main>
@@ -28,15 +31,16 @@ export default {
       P:0,
       H:0,
       D:0,
-      speed:100,
+      speed:150,
     }
   },
   mounted() {
     window.addEventListener('keydown', this.handleKeyDown);
+    window.addEventListener('mousewheel',this.menu);
     clearInterval(this.intervalTime)
     this.intervalTime = setInterval(() => {
       this.sync_data();
-      console.log("succ");
+      console.log(this.speed);
     }, 5000);
   },
   beforeUnmount() {
@@ -44,24 +48,58 @@ export default {
   },
   methods: {
     sync_data(){
-      axios.get("http://124.70.51.81:808/getT").then(response =>{
-        this.T=response.data;
-      });
-      axios.get("http://124.70.51.81:808/getP").then(response =>{
-        this.P=response.data;
-      });
-      axios.get("http://124.70.51.81:808/getH").then(response =>{
-        this.H=response.data;
-      });
-      axios.get("http://124.70.51.81:808/getD").then(response =>{
-        this.D=response.data;
+      axios.get("http://124.70.51.81:808/getBME").then(response =>{
+        this.T=response.data.Temp;
+        this.P=response.data.Pres;
+        this.H=response.data.Hum;
+        this.D=response.data.Dis;
       });
     },
     handleKeyDown(event) {
-      if (event.key === 'W') {
-        axios.post()
+      console.log(event.key);
+      if (event.key === 'W'||event.key === 'w') {
+        this.move("ahead");
+      }
+      else if(event.key === 'A'||event.key === "a"){
+        this.move("left");
+      }
+      else if(event.key === 'D'||event.key === 'd'){
+        this.move("right");
+      }
+      else if(event.key === 'S'||event.key === 's'){
+        this.move("stop");
       }
     },
+    menu(e){
+      if (e.wheelDelta) {  //判断浏览器IE，谷歌滑轮事件
+        if (e.wheelDelta > 0) { //当滑轮向上滚动时
+          this.speed++;
+        }
+        if (e.wheelDelta < 0) { //当滑轮向下滚动时
+          this.speed--;
+        }
+      }
+      else if (e.detail) {  //Firefox滑轮事件
+        if (e.detail> 0) { //当滑轮向上滚动时
+          this.speed++;
+        }
+        if (e.detail< 0) { //当滑轮向下滚动时
+          this.speed--;
+        }
+      }
+      if(this.speed>150){
+        this.speed=150;
+      }
+      if(this.speed<0){
+        this.speed=0;
+      }
+    },
+    move(method){
+      console.log(method);
+      axios.get("http://124.70.51.81:808/move?method="+method+"&speed="+this.speed).then(response =>{
+        console.log(response.data);
+      });
+    }
   }
 }
 </script>

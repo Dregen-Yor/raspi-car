@@ -1,6 +1,11 @@
 echo "Welcome to sgx's homework"
 echo "换源"
-
+cat >/etc/apt/sources.list << EOF
+deb https://mirrors.tuna.tsinghua.edu.cn/debian bookworm main contrib non-free non-free-firmware
+deb https://mirrors.tuna.tsinghua.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
+deb https://mirrors.tuna.tsinghua.edu.cn/debian bookworm-updates main contrib non-free non-free-firmware
+EOF
+sudo apt update
 echo "开始安装摄像头环境"
 sudo apt install libcamera-tools libcamera-v4l2 motion -y 
 sudo rm /etc/motion/motion.conf

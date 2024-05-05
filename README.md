@@ -24,6 +24,7 @@
 - [oat++](https://github.com/oatpp/oatpp)
 - [frp](https://github.com/fatedier/frp)
 - [Vue](https://github.com/vuejs/vue)
+- [cmake](https://github.com/Kitware/CMake)
 
 ## 参考代码
 - [BME280](https://github.com/davebm1/c-bme280-pi)
