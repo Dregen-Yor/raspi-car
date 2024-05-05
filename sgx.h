@@ -1,3 +1,5 @@
+#ifndef _WIRING_PI
+#define _WIRING_PI
 #include<wiringPi.h>
 #include <softPwm.h>
 #include<wiringPiI2C.h>
@@ -23,6 +25,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <i2c/smbus.h>
+#endif
 
 #ifndef __BME280_H
 #define __BME280_H
@@ -68,3 +71,23 @@ double BME280_compensate_H_double(int32_t adc_H);
 void setCompensationParams(int fd);
 
 #endif
+
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+ 
+	void moto_run(int x,int y);
+    void direct();
+    void left();
+    void right();
+    void stop();
+    void moto_run(int x,int y);
+    void trace();
+    double getDis();
+    void flash();
+ 
+#ifdef __cplusplus
+}
+#endif
+

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(raspi-car)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES main.cpp handler.h)
 
 # 查找 oatpp 依赖
@@ -13,3 +13,4 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} oatpp::oatpp)
 target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${PROJECT_NAME} ${WIRINGPI_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} i2c)

@@ -86,13 +86,13 @@ double BME280_compensate_H_double(int32_t adc_H) {
 }
 
 /* Read calibration data and determine trimming parameters */
-void setCompensationParams(int fd) {
+void setCompensationParams(int FD) {
     uint8_t calData0[25];
     uint8_t calData1[7];
 
     /* read calibration data */
-    i2c_smbus_read_i2c_block_data(fd, CAL_DATA0_START_ADDR, CAL_DATA0_LENGTH, calData0);
-    i2c_smbus_read_i2c_block_data(fd, CAL_DATA1_START_ADDR, CAL_DATA1_LENGTH, calData1);
+    i2c_smbus_read_i2c_block_data(FD, CAL_DATA0_START_ADDR, CAL_DATA0_LENGTH, calData0);
+    i2c_smbus_read_i2c_block_data(FD, CAL_DATA1_START_ADDR, CAL_DATA1_LENGTH, calData1);
 
     /* trimming parameters */
     dig_T1 = calData0[1] << 8 | calData0[0];
@@ -116,99 +116,201 @@ void setCompensationParams(int fd) {
     dig_H5 = calData1[5] << 4 | (calData1[4] >> 4);
     dig_H6 = calData1[6];
 }
-
-
-
-int main(void) {
-    int fd = 0;
-    uint8_t dataBlock[8];
-    int32_t temp_int = 0;
-    int32_t press_int = 0;
-    int32_t hum_int = 0;
-    double station_press = 0.0;
+int FD = 0;
+uint8_t dataBlock[8];
+int32_t temp_int = 0;
+int32_t press_int = 0;
+int32_t hum_int = 0;
+double station_press = 0.0;
+int init_BME(){
+    
 
     /* open i2c comms */
-    if ((fd = open(DEV_PATH, O_RDWR)) < 0) {
+    if ((FD = open(DEV_PATH, O_RDWR)) < 0) {
         perror("Unable to open i2c device");
         return 1;
     }
 
     /* configure i2c slave */
-    if (ioctl(fd, I2C_SLAVE, DEV_ID) < 0) {
+    if (ioctl(FD, I2C_SLAVE, DEV_ID) < 0) {
         perror("Unable to configure i2c slave device");
-        close(fd);
+        close(FD);
         return 2;
     }
 
     /* check our identification */
-    if (i2c_smbus_read_byte_data(fd, IDENT) != 0x60) {
+    if (i2c_smbus_read_byte_data(FD, IDENT) != 0x60) {
         perror("device ident error");
-        close(fd);
+        close(FD);
         return 3;
     }
 
     /* device soft reset */
-    i2c_smbus_write_byte_data(fd, SOFT_RESET, 0xB6);
+    i2c_smbus_write_byte_data(FD, SOFT_RESET, 0xB6);
     usleep(50000);
 
     /* read and set compensation parameters */
-    setCompensationParams(fd);
+    setCompensationParams(FD);
 
     /* humidity o/s x 1 */
-    i2c_smbus_write_byte_data(fd, CTRL_HUM, 0x1);
+    i2c_smbus_write_byte_data(FD, CTRL_HUM, 0x1);
 
     /* filter off */
-    i2c_smbus_write_byte_data(fd, CONFIG, 0);
+    i2c_smbus_write_byte_data(FD, CONFIG, 0);
 
     /* set forced mode, pres o/s x 1, temp o/s x 1 and take 1st reading */
-    i2c_smbus_write_byte_data(fd, CTRL_MEAS, 0x25);
+    i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
+}
+void  getT(double *p){
+    if ((i2c_smbus_read_byte_data(FD, STATUS) & 0x9) != 0) {
+            printf("%s\n", "Error, data not ready");
+            return ;
+        }
 
-    // for (;;) {
-        /* Sleep for 1 second for demonstration purposes.
-         * Data can be streamed with a sleep time down
-         * to 10 ms [usleep(10000)] with oversampling set at x1.
-         * See section 9, appendix B of the Bosch technical
-         * datasheet for details on measurement time calculation.
-         */
-        sleep(1);
+        /* read data registers */
+        i2c_smbus_read_i2c_block_data(FD, DATA_START_ADDR, DATA_LENGTH, dataBlock);
 
-        /* check data is ready to read */
-        if ((i2c_smbus_read_byte_data(fd, STATUS) & 0x9) != 0) {
+        /* awake and take next reading */
+        i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
+
+        /* get raw temp */
+        temp_int = (dataBlock[3] << 16 | dataBlock[4] << 8 | dataBlock[5]) >> 4;
+        press_int = (dataBlock[0] << 16 | dataBlock[1] << 8 | dataBlock[2]) >> 4;
+
+
+     station_press = BME280_compensate_P_double(press_int) / 100.0;
+     hum_int = dataBlock[6] << 8 | dataBlock[7];
+     p[0]=BME280_compensate_T_double(temp_int);
+     p[1]=station_press;
+     p[2]=BME280_compensate_H_double(hum_int);
+}
+double getP(){
+    if ((i2c_smbus_read_byte_data(FD, STATUS) & 0x9) != 0) {
             printf("%s\n", "Error, data not ready");
             return 0;
         }
 
         /* read data registers */
-        i2c_smbus_read_i2c_block_data(fd, DATA_START_ADDR, DATA_LENGTH, dataBlock);
+        i2c_smbus_read_i2c_block_data(FD, DATA_START_ADDR, DATA_LENGTH, dataBlock);
 
         /* awake and take next reading */
-        i2c_smbus_write_byte_data(fd, CTRL_MEAS, 0x25);
+        i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
 
-        /* get raw temp */
-        temp_int = (dataBlock[3] << 16 | dataBlock[4] << 8 | dataBlock[5]) >> 4;
-
-        /* get raw pressure */
         press_int = (dataBlock[0] << 16 | dataBlock[1] << 8 | dataBlock[2]) >> 4;
+
+
+     station_press = BME280_compensate_P_double(press_int) / 100.0;
+        return station_press;
+    
+}
+double getH(){
+    if ((i2c_smbus_read_byte_data(FD, STATUS) & 0x9) != 0) {
+            printf("%s\n", "Error, data not ready");
+            return 0;
+        }
+
+        /* read data registers */
+        i2c_smbus_read_i2c_block_data(FD, DATA_START_ADDR, DATA_LENGTH, dataBlock);
+
+        /* awake and take next reading */
+        i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
+
 
         /* get raw humidity */
         hum_int = dataBlock[6] << 8 | dataBlock[7];
+        return BME280_compensate_H_double(hum_int);
+    
+}
+// int main(void) {
+    
+//     // uint8_t dataBlock[8];
+//     // int32_t temp_int = 0;
+//     // int32_t press_int = 0;
+//     // int32_t hum_int = 0;
+//     // double station_press = 0.0;
 
-        /* calculate and print compensated temp. This function is called first, as it also sets the
-         * t_fine global variable required by the next two function calls
-         */
-        // printf("%.2f", BME280_compensate_T_double(temp_int));
+//     // /* open i2c comms */
+//     // if ((FD = open(DEV_PATH, O_RDWR)) < 0) {
+//     //     perror("Unable to open i2c device");
+//     //     return 1;
+//     // }
 
-        // station_press = BME280_compensate_P_double(press_int) / 100.0;
+//     // /* configure i2c slave */
+//     // if (ioctl(FD, I2C_SLAVE, DEV_ID) < 0) {
+//     //     perror("Unable to configure i2c slave device");
+//     //     close(FD);
+//     //     return 2;
+//     // }
 
-        /* calculate and print compensated press */
-        // printf("%.2f", station_press);
+//     // /* check our identification */
+//     // if (i2c_smbus_read_byte_data(FD, IDENT) != 0x60) {
+//     //     perror("device ident error");
+//     //     close(FD);
+//     //     return 3;
+//     // }
 
-        // /* calculate and print compensated humidity */
-        printf("%.2f", BME280_compensate_H_double(hum_int));
+//     // /* device soft reset */
+//     // i2c_smbus_write_byte_data(FD, SOFT_RESET, 0xB6);
+//     // usleep(50000);
+
+//     // /* read and set compensation parameters */
+//     // setCompensationParams(FD);
+
+//     // /* humidity o/s x 1 */
+//     // i2c_smbus_write_byte_data(FD, CTRL_HUM, 0x1);
+
+//     // /* filter off */
+//     // i2c_smbus_write_byte_data(FD, CONFIG, 0);
+
+//     // /* set forced mode, pres o/s x 1, temp o/s x 1 and take 1st reading */
+//     // i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
+
+//     // for (;;) {
+//         /* Sleep for 1 second for demonstration purposes.
+//          * Data can be streamed with a sleep time down
+//          * to 10 ms [usleep(10000)] with oversampling set at x1.
+//          * See section 9, appendix B of the Bosch technical
+//          * datasheet for details on measurement time calculation.
+//          */
+//         // sleep(1);
+
+//         /* check data is ready to read */
+//         if ((i2c_smbus_read_byte_data(FD, STATUS) & 0x9) != 0) {
+//             printf("%s\n", "Error, data not ready");
+//             return 0;
+//         }
+
+//         /* read data registers */
+//         i2c_smbus_read_i2c_block_data(FD, DATA_START_ADDR, DATA_LENGTH, dataBlock);
+
+//         /* awake and take next reading */
+//         i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
+
+//         /* get raw temp */
+//         temp_int = (dataBlock[3] << 16 | dataBlock[4] << 8 | dataBlock[5]) >> 4;
+
+//         /* get raw pressure */
+//         press_int = (dataBlock[0] << 16 | dataBlock[1] << 8 | dataBlock[2]) >> 4;
+
+//         /* get raw humidity */
+//         hum_int = dataBlock[6] << 8 | dataBlock[7];
+
+//         /* calculate and print compensated temp. This function is called first, as it also sets the
+//          * t_fine global variable required by the next two function calls
+//          */
+//         // printf("%.2f", BME280_compensate_T_double(temp_int));
+
+//         // station_press = BME280_compensate_P_double(press_int) / 100.0;
+
+//         /* calculate and print compensated press */
+//         // printf("%.2f", station_press);
+
+//         // /* calculate and print compensated humidity */
+//         printf("%.2f", BME280_compensate_H_double(hum_int));
     
 
-    return 0;
-}
+//     return 0;
+// }
 
 double sta2sea(double station_press) {
     return station_press * exp((-M * G * -LOCAL_HASL) / (R * T));
