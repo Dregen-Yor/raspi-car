@@ -76,13 +76,12 @@ void setCompensationParams(int fd);
 #ifdef __cplusplus
 extern "C"{
 #endif
- 
-	void moto_run(int x,int y);
-    void direct();
-    void left();
-    void right();
+
+    void direct(double speed);
+    void left(double speed);
+    void right(double speed);
     void stop();
-    void moto_run(int x,int y);
+    void moto_run(double x,double y);
     void trace();
     double getDis();
     void flash();

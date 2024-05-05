@@ -161,7 +161,7 @@ int init_BME(){
     /* set forced mode, pres o/s x 1, temp o/s x 1 and take 1st reading */
     i2c_smbus_write_byte_data(FD, CTRL_MEAS, 0x25);
 }
-void  getT(double *p){
+void  getAll(double *p){
     if ((i2c_smbus_read_byte_data(FD, STATUS) & 0x9) != 0) {
             printf("%s\n", "Error, data not ready");
             return ;
@@ -183,6 +183,7 @@ void  getT(double *p){
      p[0]=BME280_compensate_T_double(temp_int);
      p[1]=station_press;
      p[2]=BME280_compensate_H_double(hum_int);
+     p[3]=getDis();
 }
 double getP(){
     if ((i2c_smbus_read_byte_data(FD, STATUS) & 0x9) != 0) {

@@ -1,30 +1,30 @@
 #include "sgx.h"
-void moto_run(int x,int y);
-void direct(){
-    moto_run(-100,100);
+void moto_run(double x,double y);
+void direct(double speed){
+    moto_run(-speed,speed);
 }
 void stop(){
-    digitalWrite(GPIO22, LOW);
-    digitalWrite(GPIO23,LOW);
-    digitalWrite(GPIO24, LOW);
-    digitalWrite(GPIO25,LOW);
-    // moto_run(0,0);
+    // digitalWrite(GPIO22, LOW);
+    // digitalWrite(GPIO23,LOW);
+    // digitalWrite(GPIO24, LOW);
+    // digitalWrite(GPIO25,LOW);
+    moto_run(0,0);
 }
-void left(){
+void left(double speed){
     // digitalWrite(GPIO22,LOW );
     // digitalWrite(GPIO23,HIGH);
     // digitalWrite(GPIO24, LOW);
     // digitalWrite(GPIO25,HIGH);
-    moto_run(100,100);
+    moto_run(-speed,-speed);
 }
-void right(){
+void right(double speed){
     // digitalWrite(GPIO22, HIGH);
     // digitalWrite(GPIO23,LOW);
     // digitalWrite(GPIO24, HIGH);//
     // digitalWrite(GPIO25,LOW);
-    moto_run(-100,-100);
+    moto_run(speed,speed);
 }
-void moto_run(int x,int y){           //电机控制部分
+void moto_run(double x,double y){           //电机控制部分
      if(x>=0){
         softPwmWrite(GPIO22,x); 
         softPwmWrite(GPIO23,0); 
@@ -60,7 +60,7 @@ void flash(){
     if(s1 ==1 && s2==1 && s3==0 &&s4==0){   //1100 
         err=3.375;
     }
-    if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 1){ //001& 0101
+    if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 1){ //0011&
         err=-3.375;
     }
     if(s1 == 0&& s2 == 1&& s3 == 1&&s4 == 1){ //0111
@@ -74,9 +74,9 @@ void flash(){
     err_diff = err - last_err;
     last_err = err;
 }
-int  cacu_pwm()            //pid运算部分
+double  cacu_pwm()            //pid运算部分
 {
-    int output;
+    double output;
     double kp=60.75,ki=0,kd=10;    //pid需要根据实际情况进行调节
     output = kp*err + ki*err_sum + kd*err_diff;    
     last_err = err;
