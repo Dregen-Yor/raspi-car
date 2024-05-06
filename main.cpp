@@ -54,7 +54,7 @@ public:
   std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) override {
     double Temp[4];
     getAll(Temp);
-    printf("%lf 度 %lf pa %lf h\n",Temp[0],Temp[1],Temp[2]);
+    // printf("%lf 度 %lf pa %lf h\n",Temp[0],Temp[1],Temp[2]);
     auto message = MessageDto::createShared();
     message->Temp = Temp[0];
     message->Pres = Temp[1];
@@ -121,6 +121,16 @@ void run() {
   /* Run server */
   server.run();
 }
+void CVcap(){
+  VideoCapture capture;
+  capture.open("http://192.168.35.158:8081/0/stream",CAP_ANY);
+  if(capture.isOpened()){
+    printf("success");
+  }
+  else{
+    printf("failed");
+  }
+}
 void CVfun(){
   Capture cap;
   cap.open("",CAP_ANY);
@@ -131,6 +141,8 @@ int main() {
   oatpp::Environment::init();
   init_BME();
   init();
+  CVcap();
+
   /* Run App */
   run();
 

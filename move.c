@@ -45,22 +45,22 @@ void moto_run(double x,double y){           //电机控制部分
 }
 double err,last_err,err_diff,err_sum;
 const int base=100;
-int fd;
+int fd,fd_M;
 void flash(){
     int data=wiringPiI2CReadReg8(fd,1);
     int s1=data&1,s2=(data>>1)&1,s3=(data>>2)&1,s4=(data>>3)&1;
     if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 0)  //0010
       err = -0.65625;
     if(s1 == 0&& s2 == 0&& s3 == 0&&s4 == 1)  //0001
-      err = -2.21875;
+      err = -2.31875;
     if(s1 == 0&& s2 == 1&& s3 == 0&&s4 == 0)  //0100
       err = 0.65625;
     if(s1 == 1&& s2 == 0&& s3 == 0&&s4 == 0)  //1000
-      err = 2.21875;
+      err = 2.31875;
     if(s1 ==1 && s2==1 && s3==0 &&s4==0){   //1100 
         err=3.375;
     }
-    if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 1){ //0011&
+    if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 1){ //0011
         err=-3.375;
     }
     if(s1 == 0&& s2 == 1&& s3 == 1&&s4 == 1){ //0111
@@ -69,6 +69,7 @@ void flash(){
     if(s1 == 1&& s2 == 1&& s3 == 1&&s4 == 0){
         err=3.75;
     }
+    printf("%d %d %d %d\n",s1,s2,s3,s4);
     // err = (s1 - s4) * 3 + (s2 - s3);
     err_sum += err;
     err_diff = err - last_err;
@@ -90,6 +91,8 @@ void trace(){
 void init(){
     wiringPiSetup();
     fd=wiringPiI2CSetup(TRACE);
+    fd_M = wiringPiI2CSetup(DEVICE_ID);
+    wiringPiI2CWriteReg8(fd_M, REG_POWER_CTL, 0b00001000);
     pinMode(GPIO22, OUTPUT); // 设置gpio0为输出模式
     pinMode(GPIO23, OUTPUT);
     pinMode(GPIO24, OUTPUT);

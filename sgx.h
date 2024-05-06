@@ -15,6 +15,14 @@
 #define SDA1 8
 #define SCL1 9
 #define TRACE 0x78 
+#define DEVICE_ID 0x53
+#define REG_POWER_CTL   0x2D
+#define REG_DATA_X_LOW  0x32
+#define REG_DATA_X_HIGH 0x33
+#define REG_DATA_Y_LOW  0x34
+#define REG_DATA_Y_HIGH 0x35
+#define REG_DATA_Z_LOW  0x36
+#define REG_DATA_Z_HIGH 0x37
 
 #include <fcntl.h>
 #include <i2c/smbus.h>
