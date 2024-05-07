@@ -44,7 +44,7 @@ void moto_run(double x,double y){           //电机控制部分
     }
 }
 double err,last_err,err_diff,err_sum;
-const int base=100;
+const int base=112.5;
 int fd,fd_M;
 void flash(){
     int data=wiringPiI2CReadReg8(fd,1);
@@ -52,11 +52,11 @@ void flash(){
     if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 0)  //0010
       err = -0.65625;
     if(s1 == 0&& s2 == 0&& s3 == 0&&s4 == 1)  //0001
-      err = -2.31875;
+      err = -2.28875;
     if(s1 == 0&& s2 == 1&& s3 == 0&&s4 == 0)  //0100
       err = 0.65625;
     if(s1 == 1&& s2 == 0&& s3 == 0&&s4 == 0)  //1000
-      err = 2.31875;
+      err = 2.28875;
     if(s1 ==1 && s2==1 && s3==0 &&s4==0){   //1100 
         err=3.375;
     }
@@ -131,4 +131,14 @@ double getDis(){
     double dis = (stop - start) / 1000000 * 34000 / 2;  //计算时间差求出距离
     // 这里测试的 距离 实际就是上面时序图的回响时间长度乘以声速的结果。
     return dis;
+}
+double getPitch(){
+    int dataX = wiringPiI2CReadReg16(fd_M, REG_DATA_X_LOW);
+    dataX = -(~(int16_t)dataX + 1);
+    int dataY = wiringPiI2CReadReg16(fd_M, REG_DATA_Y_LOW);
+    dataY = -(~(int16_t)dataY + 1);
+    int dataZ = wiringPiI2CReadReg16(fd_M, REG_DATA_Z_LOW);
+    dataZ = -(~(int16_t)dataZ + 1);
+    double pitch=atan2((- dataY) , sqrt(dataX * dataX + dataZ * dataZ)) * 57.3;
+    return pitch;
 }

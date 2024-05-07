@@ -18,7 +18,8 @@ class MessageDto : public oatpp::DTO {
   DTO_FIELD(Float64, Temp);   // 温度 field
   DTO_FIELD(Float64, Pres);   // 气压 field
   DTO_FIELD(Float64,Hum);      // 湿度 field
-  DTO_FIELD(Float64,Dis);     //距离 field
+  DTO_FIELD(Float64,Dis);
+  DTO_FIELD(Float64,pitch);      //距离 field
 };
 
 /* End DTO code-generation */
@@ -34,11 +35,17 @@ extern "C" {
 #include "move.c"
 #include "BME280.c"
 }
-std::thread global;
+std::thread global,__syncPitch;
+double pitch;
+
 bool kep=1;
 void runTrace(){
   while(1){
     delay(5);
+    // if(abs(pitch)>9.0){
+    //   direct(125);
+    //   continue;
+    // }
     trace();
     if(!kep){
       break;
@@ -54,12 +61,15 @@ public:
   std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) override {
     double Temp[4];
     getAll(Temp);
+    pitch=getPitch();
     // printf("%lf 度 %lf pa %lf h\n",Temp[0],Temp[1],Temp[2]);
     auto message = MessageDto::createShared();
+    // getsta();
     message->Temp = Temp[0];
     message->Pres = Temp[1];
     message->Hum = Temp[2];
     message->Dis = Temp[3];
+    message->pitch = pitch;
     auto jsonObjectMapper = oatpp::json::ObjectMapper::createShared();
     oatpp::String json = jsonObjectMapper->writeToString(message); 
     auto res=ResponseFactory::createResponse(Status::CODE_200, json->c_str());
@@ -122,10 +132,10 @@ void run() {
   server.run();
 }
 void CVcap(){
-  VideoCapture capture;
-  capture.open("http://192.168.35.158:8081/0/stream",CAP_ANY);
-  if(capture.isOpened()){
-    printf("success");
+  cv::VideoCapture capture("http://192.168.35.158:8081/0/stream");
+  // capture.open("http://192.168.35.158:8081/0/stream",CAP_ANY);
+  if(!capture.isOpened()){
+    printf("success??");
   }
   else{
     printf("failed");
@@ -141,7 +151,14 @@ int main() {
   oatpp::Environment::init();
   init_BME();
   init();
-  CVcap();
+  cv::VideoCapture capture("http://192.168.35.158:8081/0/stream");
+  // capture.open("http://192.168.35.158:8081/0/stream",CAP_ANY);
+  if(!capture.isOpened()){
+    printf("success??");
+  }
+  else{
+    printf("failed");
+  }
 
   /* Run App */
   run();
