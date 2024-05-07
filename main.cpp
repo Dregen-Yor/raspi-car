@@ -23,6 +23,9 @@ class MessageDto : public oatpp::DTO {
 
 /* End DTO code-generation */
 #include OATPP_CODEGEN_END(DTO)
+#include "opencv2/opencv.hpp"
+#include "opencv2/imgproc.hpp"
+using namespace cv;
 #include<string>
 #include<iostream>
 #include <iomanip>
@@ -118,7 +121,10 @@ void run() {
   /* Run server */
   server.run();
 }
-
+void CVfun(){
+  Capture cap;
+  cap.open("",CAP_ANY);
+}
 int main() {
 
   /* Init oatpp Environment */
