@@ -44,7 +44,7 @@ void moto_run(double x,double y){           //电机控制部分
     }
 }
 double err,last_err,err_diff,err_sum;
-const int base=112.5;
+const int base=100;
 int fd,fd_M;
 void flash(){
     int data=wiringPiI2CReadReg8(fd,1);
@@ -52,11 +52,11 @@ void flash(){
     if(s1 == 0&& s2 == 0&& s3 == 1&&s4 == 0)  //0010
       err = -0.65625;
     if(s1 == 0&& s2 == 0&& s3 == 0&&s4 == 1)  //0001
-      err = -2.28875;
+      err = -2.25875;
     if(s1 == 0&& s2 == 1&& s3 == 0&&s4 == 0)  //0100
       err = 0.65625;
     if(s1 == 1&& s2 == 0&& s3 == 0&&s4 == 0)  //1000
-      err = 2.28875;
+      err = 2.25875;
     if(s1 ==1 && s2==1 && s3==0 &&s4==0){   //1100 
         err=3.375;
     }
@@ -64,10 +64,13 @@ void flash(){
         err=-3.375;
     }
     if(s1 == 0&& s2 == 1&& s3 == 1&&s4 == 1){ //0111
-        err=-3.75;
+        err=-3.625;
     }
     if(s1 == 1&& s2 == 1&& s3 == 1&&s4 == 0){
-        err=3.75;
+        err=3.625;
+    }
+    if(s1 ==1 && s2==1 &&s3==1 &&s4==1){
+	err=0;
     }
     printf("%d %d %d %d\n",s1,s2,s3,s4);
     // err = (s1 - s4) * 3 + (s2 - s3);
@@ -114,7 +117,7 @@ double getDis(){
     struct timeval stop_time;
 
     digitalWrite (Trig_pin, LOW); 
-    delay(10); // 延时10 毫秒  等待让电平稳定
+    delay(3); // 延时10 毫秒  等待让电平稳定
     digitalWrite (Trig_pin, HIGH);
     delayMicroseconds(10); // 给一个10us的高电平
     // 这里发现 delayMicroseconds()，这个函数是不准确的，实际是大于10us，具体结果如何，需要示波器测量一下。

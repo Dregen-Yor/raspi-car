@@ -42,10 +42,10 @@ bool kep=1;
 void runTrace(){
   while(1){
     delay(5);
-    // if(abs(pitch)>9.0){
-    //   direct(125);
-    //   continue;
-    // }
+    if(getDis()<25){
+      stop();
+      break;
+    }
     trace();
     if(!kep){
       break;
@@ -141,16 +141,7 @@ void CVcap(){
     printf("failed");
   }
 }
-void CVfun(){
-  Capture cap;
-  cap.open("",CAP_ANY);
-}
 int main() {
-
-  /* Init oatpp Environment */
-  oatpp::Environment::init();
-  init_BME();
-  init();
   cv::VideoCapture capture("http://192.168.35.158:8081/0/stream");
   // capture.open("http://192.168.35.158:8081/0/stream",CAP_ANY);
   if(!capture.isOpened()){
@@ -159,7 +150,10 @@ int main() {
   else{
     printf("failed");
   }
-
+  /* Init oatpp Environment */
+  oatpp::Environment::init();
+  init_BME();
+  init();
   /* Run App */
   run();
 
