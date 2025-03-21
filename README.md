@@ -23,6 +23,9 @@
 - PID算法四路寻迹
 - 超声波避障
 - 网页端遥控
+- 环境温度湿度气压检测
+- 静止时倾斜角探测
+- 前方障碍物距离
 
 ## 技术栈
 - [wiringPi](https://github.com/WiringPi/WiringPi)
